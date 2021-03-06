@@ -3,8 +3,7 @@ extends KinematicBody2D
 signal hit
 
 export var speed = 400  # How fast the player will move (pixels/sec).
-var screen_size  
-
+var screen_size
 
 func _ready():
 	screen_size = get_viewport_rect().size
@@ -29,8 +28,8 @@ func _process(delta):
 		$AnimatedSprite.stop()
 		
 	position += velocity * delta
-	position.x = clamp(position.x, 0, screen_size.x)
-	position.y = clamp(position.y, 0, screen_size.y)
+	# position.x = clamp(position.x, 0, screen_size.x)
+	# position.y = clamp(position.y, 0, screen_size.y)
 	
 	if velocity.x != 0:
 		$AnimatedSprite.animation = "walk"
