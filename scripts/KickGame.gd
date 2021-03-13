@@ -89,6 +89,7 @@ func _init_positions():
 func _on_ball_hit(n: Node):
 	if n == $Player:
 		return
+	"""
 	if n is Enemy:
 
 		var move = rules.ball_hit(n.entity.id, n.position - $Ball.position)
@@ -98,6 +99,7 @@ func _on_ball_hit(n: Node):
 					_apply_push(move)
 				_:
 					pass
+	"""
 	
 func _apply_push(move):
 	var node = nodes_by_eid[move.eid]
