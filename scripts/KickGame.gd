@@ -62,6 +62,12 @@ func _ready():
 	$Ball.connect("body_entered", self, "_on_ball_hit")
 	# only collide the ball in phyiscs state
 	toggle_collisions(false)
+	
+	
+
+func _on_Aimer_aim_complete(vec):
+	# simulate the result of the player's move
+	$Ball.apply_impulse(Vector2(0,0), vec)
 
 func _init_positions():
 	var p = rules.entities_of_type("player")
@@ -200,17 +206,10 @@ func run_state_handler(state, event):
 	if fn:
 		fn.call_func()
 
-func on_enter_aiming():
-	$Aimer.position = $Player.position
-	$Aimer.visible = true
-
 func on_enter_confirming():
 	$KickButton.visible = true
 
 func on_exit_confirming():
-	# simulate the result of the player's move
-	$Aimer.visible = false
-	$Ball.apply_impulse(Vector2(0,0), $Aimer.vector)
 	$KickButton.visible = false
 
 func on_enter_physics():
@@ -221,8 +220,7 @@ func on_exit_physics():
 	toggle_collisions(false)
 	
 func toggle_collisions(on):
-	var cs2d = $Ball.get_node("./CollisionShape2D")
-	cs2d.disabled = !on
+	$Ball/CollisionShape2D.disabled = !on
 	$Ball.contact_monitor = on
 
 func on_enter_enemies():

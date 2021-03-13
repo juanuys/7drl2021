@@ -1,13 +1,95 @@
 extends KinematicBody2D
 
-class_name Enemy
+# for when GD.turn_based == false
+export var speed := 50  # How fast the enemy will move (pixels/sec).
 
-var entity: Rules.Entity
+var path := PoolVector2Array() setget set_path
+var attributes := {}
+var data: DungeonItemData
+onready var tween = $Tween
 
-func set_entity(e):
-	entity = e
+func _ready() -> void:
+	set_process(false)
+
+func set_data(data_: DungeonItemData):
+	data = data_
+
+func _process(delta: float) -> void:
+	if DungeonMaster.is_turned_based():
+		return
 	
-# pretty dumb, just check what's happening to this sprite
-func on_move():
-	if entity.hp <= 0:
-		self.visible = false
+	var move_distance := speed * delta
+	_move_along_path(move_distance)
+
+func _move_along_path(distance: float) -> void:
+	var last_point : = position
+	for index in range(path.size()):
+		var distance_to_next = last_point.distance_to(path[0])
+		if distance <= distance_to_next and distance >= 0.0:
+			position = last_point.linear_interpolate(path[0], distance / distance_to_next)
+			break
+		elif path.size() == 1 and distance >= distance_to_next:
+			position = path[0]
+			set_process(false)
+			break
+
+		distance -= distance_to_next
+		last_point = path[0]
+		path.remove(0)
+
+func set_path(value: PoolVector2Array) -> void:
+	if value.size() == 0:
+		return
+	path = value
+	path.remove(0)
+	set_process(true)
+	
+	_take_turn()
+
+
+func _take_turn():
+	if not DungeonMaster.is_turned_based():
+		return
+	
+	if tween.is_active():
+		return
+		
+	# TODO give enemies move_points and make them move slower
+	# (e.g. every other turn)
+	
+	var direction = position.direction_to(path[0])
+	# TODO convert direction to one of Vector2.UP/DOWN/LEFT/RIGHT
+	move_tween(direction)
+
+
+func move_tween(dir: Vector2):
+	tween.interpolate_property(
+		self,
+		"position",
+		position,
+		position + dir * DungeonMaster.tile_size,
+		0.1,
+		Tween.TRANS_SINE, Tween.EASE_IN_OUT
+	)
+	tween.start()
+
+
+func _on_Area2D_area_entered(area):
+	# enemy area2d collision mask is set to ignore other enemies,
+	# so the only thing that can collide here is the player
+	# or ball, and in both cases, they lose a health point
+	# But for now, they just die.
+
+	tween.interpolate_property(
+		self,
+		"scale",
+		scale,
+		Vector2.ZERO,
+		0.1,
+		Tween.TRANS_SINE, Tween.EASE_IN_OUT
+	)
+	tween.start()
+	tween.connect("tween_completed", self, "_die")
+
+func _die(obj, key):
+	queue_free()

@@ -2,7 +2,9 @@
 
 [ext_resource path="res://addons/gut/plugin_control.gd" type="Script" id=1]
 
-[node name="Gut" type="Control"]
+[node name="Node2D" type="Node2D"]
+
+[node name="Gut" type="Control" parent="."]
 margin_right = 740.0
 margin_bottom = 250.0
 rect_min_size = Vector2( 740, 250 )

@@ -1,28 +1,15 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://assets/hero/elf_m_run_anim_f2.png" type="Texture" id=1]
-[ext_resource path="res://assets/hero/elf_m_run_anim_f1.png" type="Texture" id=2]
-[ext_resource path="res://assets/hero/elf_m_run_anim_f0.png" type="Texture" id=3]
-[ext_resource path="res://assets/hero/elf_m_idle_anim_f3.png" type="Texture" id=4]
-[ext_resource path="res://assets/hero/elf_m_idle_anim_f2.png" type="Texture" id=5]
-[ext_resource path="res://assets/hero/elf_m_hit_anim_f0.png" type="Texture" id=6]
-[ext_resource path="res://assets/hero/elf_m_idle_anim_f0.png" type="Texture" id=7]
-[ext_resource path="res://assets/hero/elf_m_run_anim_f3.png" type="Texture" id=8]
-[ext_resource path="res://assets/hero/elf_m_idle_anim_f1.png" type="Texture" id=9]
+[ext_resource path="res://scripts/Health.tscn" type="PackedScene" id=1]
+[ext_resource path="res://assets/anims/hero/elf_m_idle_anim_f3.png" type="Texture" id=4]
+[ext_resource path="res://assets/anims/hero/elf_m_idle_anim_f2.png" type="Texture" id=5]
+[ext_resource path="res://assets/anims/hero/elf_m_idle_anim_f0.png" type="Texture" id=7]
+[ext_resource path="res://assets/anims/hero/elf_m_idle_anim_f1.png" type="Texture" id=9]
 [ext_resource path="res://scripts/Player.gd" type="Script" id=10]
+[ext_resource path="res://scripts/Aimer.tscn" type="PackedScene" id=11]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
-"frames": [ ExtResource( 3 ), ExtResource( 2 ), ExtResource( 1 ), ExtResource( 8 ) ],
-"loop": true,
-"name": "walk",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 6 ) ],
-"loop": true,
-"name": "attack",
-"speed": 5.0
-}, {
 "frames": [ ExtResource( 7 ), ExtResource( 9 ), ExtResource( 5 ), ExtResource( 4 ) ],
 "loop": true,
 "name": "idle",
@@ -30,19 +17,45 @@ animations = [ {
 } ]
 
 [sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 6.98052, 9.52416 )
+extents = Vector2( 16, 16 )
 
 [node name="Player" type="KinematicBody2D"]
+z_index = 1
 script = ExtResource( 10 )
 __meta__ = {
 "_edit_group_": true
 }
 
+[node name="HealthBar" parent="." instance=ExtResource( 1 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 0.0
+margin_bottom = 0.0
+rect_pivot_offset = Vector2( 0, 0 )
+
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+position = Vector2( 0, -7 )
 frames = SubResource( 1 )
 animation = "idle"
+frame = 2
+playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( 0, 4.287 )
 shape = SubResource( 2 )
-[connection signal="hit" from="." to="." method="_on_Player_hit"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+
+[node name="Aimer" parent="." instance=ExtResource( 11 )]
+position = Vector2( 0, 0 )
+
+[node name="Tween" type="Tween" parent="."]
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource( 2 )
+[connection signal="area_entered" from="Area2D" to="." method="_on_Area2D_area_entered"]
