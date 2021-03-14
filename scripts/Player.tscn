@@ -37,7 +37,7 @@ rect_pivot_offset = Vector2( 0, 0 )
 position = Vector2( 0, -7 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 2
+frame = 3
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

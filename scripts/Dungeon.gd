@@ -5,8 +5,11 @@ signal dungeon_initialised
 onready var navmesh: Navigation2D = $Navigation2D
 onready var level: TileMap = $Navigation2D/Level
 onready var player = $Player
+onready var player_vfx = $Player/Celebration
 onready var ball = $Ball
 onready var goal = $Goal
+onready var goal_sfx = $Goal/SFX
+onready var goal_vfx = $Goal/Celebration
 onready var camera: Camera2D = $Player/Camera2D
 onready var level_size = DungeonMaster.level_size
 
@@ -27,6 +30,8 @@ func _ready() -> void:
 	#print("tile IDs ", level.tile_set.get_tiles_ids())
 	#for i in level.tile_set.get_tiles_ids():
 	#	print("tile name ", level.tile_set.tile_get_name(i))
+	
+	goal.connect("goal_scored", self, "_on_goal_scored")
 
 func _on_Aimer_aim_complete(vec):
 	# only kick if the ball is next to the player's feet
@@ -98,3 +103,25 @@ func _snap_position(pos):
 	_position = _position.snapped(Vector2.ONE * DungeonMaster.tile_size)
 	_position += Vector2.ONE * DungeonMaster.tile_size/2
 	return _position
+
+func _on_goal_scored():
+	goal_sfx.play()
+	player_vfx.emitting = true
+	goal_vfx.emitting = true
+	
+	var ball_tween = $Ball/Tween
+	ball_tween.interpolate_property(
+		$Ball/AnimatedSprite,
+		"scale",
+		$Ball/AnimatedSprite.scale,
+		Vector2.ZERO,
+		2,
+		Tween.TRANS_SINE, Tween.EASE_IN_OUT
+	)
+	ball_tween.start()
+	ball_tween.connect("tween_completed", self, "_goto_next_level")
+	
+func _goto_next_level(_a, _b):
+	# TODO show level number somewhere...
+	DungeonMaster.current_level += 1
+	get_tree().reload_current_scene()
