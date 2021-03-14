@@ -13,6 +13,7 @@ func _ready() -> void:
 
 func set_data(data_: DungeonItemData):
 	data = data_
+	$AnimatedSprite.frames = load("res://resources/anim/" + data.name + ".tres")
 
 func _process(delta: float) -> void:
 	if DungeonMaster.is_turned_based():
