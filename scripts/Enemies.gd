@@ -16,5 +16,8 @@ func _get_path_from_me_to_player(me: Vector2) -> PoolVector2Array:
 
 func _on_Player_player_moved():
 	for enemy in get_children():
-		var path: PoolVector2Array = _get_path_from_me_to_player(enemy.position)
-		enemy.set_path(path)
+		var dist = player.position.distance_to(enemy.position)
+		if dist < 200:
+			# only get enemies interested in player if they're near
+			var path: PoolVector2Array = _get_path_from_me_to_player(enemy.position)
+			enemy.set_path(path)
