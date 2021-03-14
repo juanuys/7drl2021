@@ -58,9 +58,21 @@ func _take_turn():
 	# (e.g. every other turn)
 	
 	var direction = position.direction_to(path[0])
-	# TODO convert direction to one of Vector2.UP/DOWN/LEFT/RIGHT
+	
+	# TODO doesn't work that well (collision areas to large on enemies?)
+	#move_tween(_quantize_vector(direction))
 	move_tween(direction)
 
+
+# quantizes a continuous vector into integer vector
+func _quantize_vector(vec: Vector2) -> Vector2:
+	var r = vec.normalized().rotated(deg2rad(-45))
+	# rotate a quarter, to make checks easy
+	if r.y < 0:
+		return Vector2.RIGHT if r.x >= 0 else Vector2.UP
+	else:
+		return Vector2.DOWN if r.x >= 0 else Vector2.LEFT
+			
 
 func move_tween(dir: Vector2):
 	tween.interpolate_property(
