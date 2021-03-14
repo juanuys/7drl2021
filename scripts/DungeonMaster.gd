@@ -62,15 +62,20 @@ func _get_random_room() -> Rect2:
 	return Rect2(x, y, width, height)
 
 
+
 func _add_room(data: Dictionary, rooms: Array, room: Rect2, room_idx: int) -> void:
 	rooms.push_back(room)
-	for x in range(room.position.x, room.end.x):
-		for y in range(room.position.y, room.end.y):
-			var it = _get_random_item_or_enemy(room_idx, room, x, y)
-			data[Vector2(x, y)] = it
+	var items = game_rng.randi_range(2, 6)
+	for i in range(items):
+		while true:
+			var rxy = Vector2(game_rng.randi_range(0, room.size.x - 1), game_rng.randi_range(0, room.size.y - 1)) + room.position
+			if data.has(rxy):
+				continue
+			data[rxy] = _get_random_item_or_enemy(room_idx, room, rxy)
+			break
 
 
-func _get_random_item_or_enemy(room_idx, room, x, y):
+func _get_random_item_or_enemy(room_idx, room, vec):
 	"""
 	Looks at current_level to determine which enemies, and how
 	many of them to place in the dungeon.
@@ -81,21 +86,15 @@ func _get_random_item_or_enemy(room_idx, room, x, y):
 	
 	DM provides pure data, and Dungeon.gd will link the appropriate scenes.
 	"""
-	if room_idx == 4:
-		if x == 14:
-			if y == 68:
-				return DungeonItemData.new(
-					"chort",
-					enemy_attributes.get("chort"),
+	var types = enemy_attributes.keys()
+	var type = types[game_rng.randi_range(0, len(types) - 1)]
+	return DungeonItemData.new(
+					type,
+					enemy_attributes.get(type),
 					"enemy",
-					Vector2(x, y))
-			if y == 69:
-				return DungeonItemData.new(
-					"goblin",
-					enemy_attributes.get("goblin"),
-					"enemy",
-					Vector2(x, y))
-	return null
+					vec)
+
+
 
 
 func _add_connection(data: Dictionary, room1: Rect2, room2: Rect2) -> void:
