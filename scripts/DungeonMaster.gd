@@ -19,6 +19,11 @@ var game_rng_seed = "7drl" setget set_seed
 var game_rng := RandomNumberGenerator.new()
 
 
+func reset():
+	current_level = 1
+	set_seed(game_rng_seed)
+	game_rng = RandomNumberGenerator.new()
+
 func is_turned_based():
 	# for some reason I can't just call DM.turn_based elsewhere,
 	# hence this func
@@ -27,7 +32,7 @@ func is_turned_based():
 
 func _ready():
 	print("Dungeon Master is present", enemy_attributes)
-	set_seed(game_rng_seed)
+	reset()
 
 
 # Setter for the random seed.
@@ -42,12 +47,12 @@ func generate_dungeon_layout_data() -> Dictionary:
 
 	var data := {}
 	var rooms := []
-	for room_idx in range(rooms_max):
+	for room_number in range(1, rooms_max + 1):
 		var room := _get_random_room()
-		if _intersects(rooms, room):
+		if _intersects(rooms, room) and room_number != rooms_max:
 			continue
 
-		_add_room(data, rooms, room, room_idx)
+		_add_room(data, rooms, room, room_number)
 		if rooms.size() > 1:
 			var room_previous: Rect2 = rooms[-2]
 			_add_connection(data, room_previous, room)
@@ -57,23 +62,40 @@ func generate_dungeon_layout_data() -> Dictionary:
 func _get_random_room() -> Rect2:
 	var width := game_rng.randi_range(rooms_size.x, rooms_size.y)
 	var height := game_rng.randi_range(rooms_size.x, rooms_size.y)
-	var x := game_rng.randi_range(0, level_size.x - width - 1)
-	var y := game_rng.randi_range(0, level_size.y - height - 1)
+	var x := game_rng.randi_range(1, level_size.x - width - 2)
+	var y := game_rng.randi_range(1, level_size.y - height - 2)
 	var room_rect = Rect2(x, y, width, height)
 	return room_rect
 
 
-func _add_room(data: Dictionary, rooms: Array, room: Rect2, room_idx: int) -> void:
+func _add_room(data: Dictionary, rooms: Array, room: Rect2, room_number: int) -> void:
 	rooms.push_back(room)
 	
+	# get all the coordinates for this room into 'data'
 	for x in range(room.position.x, room.end.x):
 		for y in range(room.position.y, room.end.y):
 			data[Vector2(x, y)] = null
 	
+	# if this is the first room, only have the player and ball in there
+	var x = int((room.position.x + room.end.x) / 2)
+	var y = int((room.position.y + room.end.y) / 2)
+	var room_center := Vector2(x, y)
+	
+	match room_number:
+		1: 
+			data[room_center] = "player"
+			data[room_center + Vector2.UP] = "ball"
+			return
+		rooms_max:
+			data[room_center] = "goal"
+			return
+	
+	# establish how many things are in this room
 	var n_items = game_rng.randi_range(
 		DungeonMaster.current_level,
 		DungeonMaster.current_level + 2)
 	
+	# find some random points in this room
 	var random_points = {}
 	for i in range(n_items):
 		while true:
@@ -85,11 +107,12 @@ func _add_room(data: Dictionary, rooms: Array, room: Rect2, room_idx: int) -> vo
 			random_points[rxy] = null
 			break
 				
+	# for each random point, place a random item there
 	for random_point in random_points.keys():
-		data[random_point] = _get_random_item_or_enemy(room_idx, room, random_point)
+		data[random_point] = _get_random_item_or_enemy(room_number, room, random_point)
 
 
-func _get_random_item_or_enemy(room_idx, room, vec):
+func _get_random_item_or_enemy(room_number, room, vec):
 	"""
 	Looks at current_level to determine which enemies, and how
 	many of them to place in the dungeon.
@@ -100,6 +123,10 @@ func _get_random_item_or_enemy(room_idx, room, vec):
 	
 	DM provides pure data, and Dungeon.gd will link the appropriate scenes.
 	"""
+	# room number 1 is handled elsewhere, but just in case
+	if room_number == 1:
+		return null
+		
 	var types = enemy_attributes.keys()
 	var type = types[game_rng.randi_range(0, len(types) - 1)]
 	return DungeonItemData.new(

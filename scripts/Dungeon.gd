@@ -65,33 +65,27 @@ func _initialise_dungeon() -> void:
 	var data_keys = data.keys()
 
 	# set tiles, enemies and props based on DM's level data
-	for vector in data_keys:
-		var item_at_coord = data[vector]
+	for point in data_keys:
+		var item_at_coord = data[point]
 		if item_at_coord:  # could be null
-			if item_at_coord.type == "enemy":
-				var enemy = EnemyScene.instance()
-				enemy.position = _snap_position(item_at_coord.grid_position)
-				enemy.set_data(item_at_coord)
-				$Enemies.add_child(enemy)
+			match item_at_coord:
+				"player": player.position = _snap_position(point)
+				"ball": ball.position = _snap_position(point)
+				"goal": goal.position = _snap_position(point)
+				_:
+					if item_at_coord.type == "enemy":
+						var enemy = EnemyScene.instance()
+						enemy.position = _snap_position(item_at_coord.grid_position)
+						enemy.set_data(item_at_coord)
+						$Enemies.add_child(enemy)
 			
-		level.set_cellv(vector, FLOOR_TILE)
+		level.set_cellv(point, FLOOR_TILE)
 	
 	# fix bitmask, as set_cellv uses the *first* tile at region
 	# but we want to *relevant* tile
 	for x in range(level_size.x):
 		for y in range(level_size.y):
 			level.update_bitmask_area(Vector2(x, y))
-	
-	
-	# TODO place player and ball in DM's generator
-	# for now, place the player and their ball somewhere in the centre of the dungeon
-	var mid = len(data_keys) / 2
-	
-	player.position = _snap_position(data_keys[mid])
-	ball.position = _snap_position(data_keys[mid + 1])
-	
-	# TODO place the goal in the DM's generator
-	goal.position = Vector2(128, 512)
 	
 	emit_signal("dungeon_initialised")
 	
