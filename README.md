@@ -1,3 +1,6 @@
+# Football Dungeon
+
+Score a goal to get to next level. Don't lose your ball - it's your only defense!
 
 # Credits
 
@@ -9,10 +12,14 @@ https://soundcloud.com/phission-chips/match-of-the-day
 
 https://0x72.itch.io/dungeontileset-ii
 
-# SFX
+## SFX
 
 Ball kick
 https://freesound.org/people/musita182/sounds/261267/
 
 Goal
 https://freesound.org/people/jhyland/sounds/539673/
+
+## Font
+
+https://www.dafont.com/american-captain.font
