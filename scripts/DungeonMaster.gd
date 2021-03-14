@@ -83,6 +83,12 @@ func _get_random_item_or_enemy(room_idx, room, x, y):
 	"""
 	if room_idx == 4:
 		if x == 14:
+			if y == 67:
+				return DungeonItemData.new(
+					"wizard",
+					enemy_attributes.get("wizard"),
+					"enemy",
+					Vector2(x, y))
 			if y == 68:
 				return DungeonItemData.new(
 					"chort",

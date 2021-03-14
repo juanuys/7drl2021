@@ -32,6 +32,7 @@ func _ready() -> void:
 	#	print("tile name ", level.tile_set.tile_get_name(i))
 	
 	goal.connect("goal_scored", self, "_on_goal_scored")
+	$Player.connect("player_die", self, "_on_game_over")
 
 func _on_Aimer_aim_complete(vec):
 	# only kick if the ball is next to the player's feet
@@ -125,3 +126,6 @@ func _goto_next_level(_a, _b):
 	# TODO show level number somewhere...
 	DungeonMaster.current_level += 1
 	get_tree().reload_current_scene()
+
+func _on_game_over():
+	get_tree().change_scene("res://scripts/GameOver.tscn")
