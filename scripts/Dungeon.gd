@@ -24,9 +24,9 @@ func _ready() -> void:
 	$Player/Aimer.connect("aim_complete", self, "_on_Aimer_aim_complete")
 	
 	# available Tile IDs
-	print("tile IDs ", level.tile_set.get_tiles_ids())
-	for i in level.tile_set.get_tiles_ids():
-		print("tile name ", level.tile_set.tile_get_name(i))
+	#print("tile IDs ", level.tile_set.get_tiles_ids())
+	#for i in level.tile_set.get_tiles_ids():
+	#	print("tile name ", level.tile_set.tile_get_name(i))
 
 func _on_Aimer_aim_complete(vec):
 	# only kick if the ball is next to the player's feet
