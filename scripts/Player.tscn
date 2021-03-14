@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://scripts/Health.tscn" type="PackedScene" id=1]
 [ext_resource path="res://assets/anims/hero/elf_m_idle_anim_f3.png" type="Texture" id=4]
@@ -15,6 +15,9 @@ animations = [ {
 "name": "idle",
 "speed": 5.0
 } ]
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 16.0
 
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 16, 16 )
@@ -37,11 +40,11 @@ rect_pivot_offset = Vector2( 0, 0 )
 position = Vector2( 0, -7 )
 frames = SubResource( 1 )
 animation = "idle"
-frame = 3
+frame = 2
 playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 2 )
+shape = SubResource( 3 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true

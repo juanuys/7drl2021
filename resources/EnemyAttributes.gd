@@ -73,3 +73,6 @@ var _attrs := {
 
 func get(enemy_name: String) -> Dictionary:
 	return _attrs.get(enemy_name, {})
+
+func keys() -> Array:
+	return _attrs.keys()

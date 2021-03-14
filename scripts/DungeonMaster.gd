@@ -59,18 +59,37 @@ func _get_random_room() -> Rect2:
 	var height := game_rng.randi_range(rooms_size.x, rooms_size.y)
 	var x := game_rng.randi_range(0, level_size.x - width - 1)
 	var y := game_rng.randi_range(0, level_size.y - height - 1)
-	return Rect2(x, y, width, height)
+	var room_rect = Rect2(x, y, width, height)
+	return room_rect
 
 
 func _add_room(data: Dictionary, rooms: Array, room: Rect2, room_idx: int) -> void:
 	rooms.push_back(room)
+	
 	for x in range(room.position.x, room.end.x):
 		for y in range(room.position.y, room.end.y):
-			var it = _get_random_item_or_enemy(room_idx, room, x, y)
-			data[Vector2(x, y)] = it
+			data[Vector2(x, y)] = null
+	
+	var n_items = game_rng.randi_range(
+		DungeonMaster.current_level,
+		DungeonMaster.current_level + 2)
+	
+	var random_points = {}
+	for i in range(n_items):
+		while true:
+			var rx = game_rng.randi_range(room.position.x, room.end.x - 1)
+			var ry = game_rng.randi_range(room.position.y, room.end.y - 1)
+			var rxy = Vector2(rx, ry)
+			if random_points.has(rxy):
+				continue
+			random_points[rxy] = null
+			break
+				
+	for random_point in random_points.keys():
+		data[random_point] = _get_random_item_or_enemy(room_idx, room, random_point)
 
 
-func _get_random_item_or_enemy(room_idx, room, x, y):
+func _get_random_item_or_enemy(room_idx, room, vec):
 	"""
 	Looks at current_level to determine which enemies, and how
 	many of them to place in the dungeon.
@@ -81,27 +100,13 @@ func _get_random_item_or_enemy(room_idx, room, x, y):
 	
 	DM provides pure data, and Dungeon.gd will link the appropriate scenes.
 	"""
-	if room_idx == 4:
-		if x == 14:
-			if y == 67:
-				return DungeonItemData.new(
-					"wizard",
-					enemy_attributes.get("wizard"),
+	var types = enemy_attributes.keys()
+	var type = types[game_rng.randi_range(0, len(types) - 1)]
+	return DungeonItemData.new(
+					type,
+					enemy_attributes.get(type),
 					"enemy",
-					Vector2(x, y))
-			if y == 68:
-				return DungeonItemData.new(
-					"chort",
-					enemy_attributes.get("chort"),
-					"enemy",
-					Vector2(x, y))
-			if y == 69:
-				return DungeonItemData.new(
-					"goblin",
-					enemy_attributes.get("goblin"),
-					"enemy",
-					Vector2(x, y))
-	return null
+					vec)
 
 
 func _add_connection(data: Dictionary, room1: Rect2, room2: Rect2) -> void:
